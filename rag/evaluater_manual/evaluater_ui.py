@@ -12,6 +12,7 @@ class ManualEvaluationUI:
         self.load_rating_standards()
         self.current_idx = 0
         self.scores = {}
+        self.comments = {}
         self.score_handler = ManualEvaluator()
         
     def load_config(self):
@@ -20,7 +21,7 @@ class ManualEvaluationUI:
             self.config = yaml.safe_load(f)
     
     def load_data(self):
-        data_path = Path("rag/data/corpus/custom_conversations_20250109_result.json")
+        data_path = Path("rag/data/corpus/custom_conversations_20250115_result.json")
         with open(data_path, "r", encoding="utf-8") as f:
             self.conversations = json.load(f)
             
@@ -42,13 +43,17 @@ class ManualEvaluationUI:
         for i, result in enumerate(conv["retrieve_results"]):
             st.text(f"检索结果 {i+1}:")
             st.write(result)
+        # 检索结果的反馈
+        retri_com = st.text_input(f"对检索结果反馈", key=f"ret_com", value="")
             
         # 显示重排结果
         st.markdown("### 重排结果")
         for i, result in enumerate(conv["rerank_results"]):
             st.text(f"重排结果 {i+1}:")
             st.write(result)
-
+        # 重排结果的反馈
+        rerank_com = st.text_input(f"对重排结果反馈", key=f"rerank_com", value="")
+            
         # 展示原始answer
         st.markdown("### 原始答案")
         st.write(conv["answer"])
@@ -56,6 +61,18 @@ class ManualEvaluationUI:
         # 显示生成结果
         st.markdown("### 生成结果")
         st.write(conv["generation"])
+        # 重排结果的反馈
+        gen_com = st.text_input(f"对生成结果反馈", key=f"gen_com", value="")
+        
+        if st.button("保存反馈", key=f"save_com_{idx}"):
+            self.score_handler.add_comment(str(idx), {
+                "检索评价": retri_com,
+                "重排评价": rerank_com,
+                "生成评价": gen_com
+            })
+            st.success("反馈已保存!")
+        
+        
             
     def render_scoring(self, idx):
 
@@ -106,6 +123,8 @@ class ManualEvaluationUI:
             st.session_state.current_idx = 0
         if "scores" not in st.session_state:
             st.session_state.scores = self.score_handler.scores
+        if "comments" not in st.session_state:
+            st.session_state.comments = self.score_handler.comments
         # st.write(st.session_state.scores)
 
         # 显示评分标准
