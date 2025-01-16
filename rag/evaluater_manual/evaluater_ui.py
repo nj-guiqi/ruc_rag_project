@@ -34,6 +34,16 @@ class ManualEvaluationUI:
         conv = self.conversations[idx]
         st.subheader(f"对话 {idx + 1}/{len(self.conversations)}")
         
+        # 获取当前对话的评分
+        if str(idx) in st.session_state.comments.keys():
+            saved_comment = st.session_state.comments[str(idx)]
+        else:
+            saved_comment = {
+                "检索评价": "",
+                "重排评价": "",
+                "生成评价": "",
+            } 
+        
         # 显示原始查询
         st.markdown("### 用户查询")
         st.write(conv["query"])
@@ -44,7 +54,7 @@ class ManualEvaluationUI:
             st.text(f"检索结果 {i+1}:")
             st.write(result)
         # 检索结果的反馈
-        retri_com = st.text_input(f"对检索结果反馈", key=f"ret_com", value="")
+        retri_com = st.text_input(f"对检索结果反馈", key=f"ret_com", value=saved_comment["检索评价"])
             
         # 显示重排结果
         st.markdown("### 重排结果")
@@ -52,7 +62,7 @@ class ManualEvaluationUI:
             st.text(f"重排结果 {i+1}:")
             st.write(result)
         # 重排结果的反馈
-        rerank_com = st.text_input(f"对重排结果反馈", key=f"rerank_com", value="")
+        rerank_com = st.text_input(f"对重排结果反馈", key=f"rerank_com", value=saved_comment["重排评价"])
             
         # 展示原始answer
         st.markdown("### 原始答案")
@@ -62,7 +72,7 @@ class ManualEvaluationUI:
         st.markdown("### 生成结果")
         st.write(conv["generation"])
         # 重排结果的反馈
-        gen_com = st.text_input(f"对生成结果反馈", key=f"gen_com", value="")
+        gen_com = st.text_input(f"对生成结果反馈", key=f"gen_com", value=saved_comment["生成评价"])
         
         if st.button("保存反馈", key=f"save_com_{idx}"):
             self.score_handler.add_comment(str(idx), {
