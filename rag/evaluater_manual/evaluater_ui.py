@@ -48,6 +48,10 @@ class ManualEvaluationUI:
         st.markdown("### 用户查询")
         st.write(conv["query"])
         
+        # 显示改写后查询
+        st.markdown("### 改写后查询")
+        st.write(conv["modified_query"])
+        
         # 显示检索结果
         st.markdown("### 检索结果")
         for i, result in enumerate(conv["retrieve_results"]):
