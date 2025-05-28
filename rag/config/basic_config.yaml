@@ -11,13 +11,21 @@ corpus_path: "data/regulations_with_metadata.json"
 qa_path: "data/QA_filtered.json"
 stopword_path: "data/stopwords.txt"
 dict_path: "data/dataset_dict.txt"
+# dataloader
 bing_api: "63516b23c16b44e4947a5142c58b9292"
+bing_url: "https://api.bing.microsoft.com/v7.0/search"
+
+#llm_config
+llm_model: "qwen-max-latest"
+base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+api_key: "sk-feebadbcb5654f5c8f9044c78f7c4548"
 
 # database_config
 db_name: "my_db"
 db_uri: "./milvus.db"
 # db_uri: "http://localhost:19530"
-db_collection_name: "regulation"
+db_collection_name_regu: "regulation"
+db_collection_name_qa: "qa"
 db_output_fields: ["content"]
 db_index_fields: ["dense_vector", "sparse_vector"]
 db_chunk_size: 256
@@ -27,21 +35,52 @@ db_content_key: "content"
 db_appendix_content_key: "appendix_content"
 db_metadata_key: "metadata"
 db_sparse_index_type: "SPARSE_INVERTED_INDEX"
+db_sparse_metric_type: "IP"
+db_dense_metric_type: "L2"
 db_dense_index_type: "HNSW"
+db_sparse_params:
+  nlist: 1024
+db_dense_params:
+  M: 16
+  efConstruction: 100
 # db_dense_index_type: "IVF_FLAT"
+# db_dense_params:
+#   nlist: 1024
+db_dense_search_params:
+  metric_type: L2
+  params:
+    nprobe: 10
+db_sparse_search_params:
+  metric_type: IP
+  params:
+    drop_ratio_search: 0.2
 
 # retriever
 embedding_model: "BAAI/bge-m3"
+embedding_device: "cuda:0"
 retriever_topk: 5
 rrf_k: 60
 fields_to_search: ["metadata"]
+enginesearch_mode: "bing"
 # rerank
 rerank_model: "BAAI/bge-reranker-v2-m3"
+rerank_device: "cuda:0"
 rerank_topk: 3
 
 #generate
-generate_model: "Qwen/Qwen2.5-0.5B-Instruct"
+generate_config:
+  max_tokens: 1024     # 控制生成的最大长度
+  temperature: 0.7    # 降低随机性，提高生成质量
+  top_p: 0.9     # 核采样参数
+  n: 1 # 仅生成一个答案
 
+# sever_client
+server_url: "http://127.0.0.1:8000"
+MAX_HISTORY_LENGTH: 100 # 存储的historys最大长度
+server_host: "0.0.0.0"
+server_port: 8000
+server_script: "examples/server_demo.py"
+client_script: "examples/client_demo.py"
 # -------------------------------------------------Evaluation Settings------------------------------------------------#
 # Metrics to evaluate the result
 metrics:
